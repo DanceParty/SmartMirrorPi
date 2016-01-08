@@ -1,0 +1,121 @@
+<html>
+
+<head>
+	<meta http-equiv="refresh" content="1800" >
+
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<link href='https://s3-us-west-2.amazonaws.com/s.cdpn.io/93/artill_clean_icons-webfont.ttf' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="stylesheet.css">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="node_modules/simpleweatherjs/jquery.simpleWeather.js"></script>
+	<script src="node_modules/moment/moment.js"></script>
+	<script src="node_modules/moment-timezone/moment-timezone.js"></script>
+	<script src="node_modules/moment-timezone/moment-timezone-utils.js"></script>	
+	
+
+</head>
+
+<body>
+
+	<div id="timeKST"></div>
+
+	<div id="date"></div>
+	</br>
+	</br>
+	<div id="timeUSA"></div>
+
+	<div id="output"></div>
+
+
+	<div id="weatherKR"></div>
+	<div id="currentKR"></div>
+
+	
+
+	<script>
+
+//------------------- Messages for Jeehyae ----------------------
+
+		var rotatingMessages = ['Carrie and Lowel - Sufjan Stevens', 'Work hard at crossfit today!', 'You are looking wonderful today', 'Hi Jeehye, love ya!', 'Hope you have a great day today.', 'Stay positive.', 'Annyong Jeehye, saranghe!', 'Mashidsuh!', 'Have a wonderful day.', 'Stay fly.', '2ne1 - Come Back Home', 'You look beautiful today!', 'I love you <3', 'Party hard bruh', 'Love you to the moon and back', 'Nice outfit :)', 'Come visit soon', '사랑해 여보아', '보고싶어'];
+		//on document load
+		$(document).ready(function () {
+			//create function to display messages
+			function message_rand() {
+				// shift to the next message in the list
+				var msg = rotatingMessages.shift();
+				//push that message
+				rotatingMessages.push(msg);
+				//add to output div tag
+				$("#output").html(msg);
+			}
+			//reload page every 5 seconds and display the next message in the list
+			setInterval(message_rand, 5000);
+		});
+
+//------------------- Weather - simpleWeather.js ----------------
+
+		$(document).ready(function() {
+			//retrieves the initial weather
+			getWeather();
+			//updates the weather every hour (I think?) 600,000 = 10 mins
+			setInterval(getWeather, 3600000);
+		});
+		//create the function to property display weather and conditions
+		function getWeather() {
+			//set the meta data for the simpleWeather
+			$.simpleWeather({
+				location: 'Seoul',
+				unit: 'c',
+				success: function(weather) {
+					//create variables for the information to append to the div tags
+					html = '</br>' + weather.temp + '&deg' + weather.units.temp + '</br>'; 
+					html2 = '</br>' + 'The weather is currently' + '<em>' + weather.currently + '</em>' + ' in ' + weather.city + ' ' + weather.region + ', with a high of ' + weather.high + '&deg' + weather.units.temp + ' and a low of ' + weather.low + '&deg' + weather.units.temp + '.';
+
+					$('#weatherKR').html(html);
+					$('#currentKR').html(html2);
+					 },
+				error: function(error) {
+					$('#weatherKR').html(error);
+					$('#currentKR').html(error);
+				}
+			});
+		}
+		 
+
+//------------------- Time and date - moment.js -----------------
+
+		//needed to add the KST time zone by adding the 'unpacked version' and then packing it
+		var unpacked = {
+			name	: "Asia/Seoul",
+			abbrs	: ["KST"],
+			untils	: [null],
+			offsets	: [-540]
+		};
+
+		var unpacked1 = {
+			name	: "America/Phoenix",
+			abbrs	: ["MST"],
+			untils	: ["null"],
+			offsets	: [420]
+		};
+		//this gets the packed version of the info above
+		var packed = moment.tz.pack(unpacked);
+
+		var packed1 = moment.tz.pack(unpacked);
+
+		//adds the timezone from the info above into the tz database
+		moment.tz.add('Asia/Seoul|KST|-90|0|');
+		moment.tz.add('America/Phoenix|MST|70|0|');
+
+		//adds KST to the timeKST slot
+		document.getElementById("timeKST").innerHTML = moment.tz('Asia/Seoul').format('ha z');
+
+		//adds MST to the timeUSA slot
+		document.getElementById("timeUSA").innerHTML = moment.tz('America/Phoenix').format('ha z');
+
+		//adds the current date of the USER's timezone at that moment
+		document.getElementById("date").innerHTML = moment().format('LL');	
+	</script>
+</body>
+
+</html>
